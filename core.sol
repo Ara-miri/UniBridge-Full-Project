@@ -18,7 +18,7 @@ contract UniBridgeVault is ReentrancyGuard, Ownable {
     function lock(uint256 _amount) external payable nonReentrant {
         require(msg.value == _amount, "Must send exact amount");
         lockedBalances[msg.sender] += _amount;
-        
+
         // این ایندکسرها (Graph) این رویداد را می‌خوانند
         emit Lock(msg.sender, _amount, 56); // 56 کد شبکه BSC است
     }
@@ -27,7 +27,7 @@ contract UniBridgeVault is ReentrancyGuard, Ownable {
     function release(address _user, uint256 _amount) external onlyOwner {
         (bool success, ) = _user.call{value: _amount}("");
         require(success, "Transfer failed");
-        
+
         emit Release(_user, _amount);
     }
 }
