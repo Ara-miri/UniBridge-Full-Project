@@ -21,6 +21,7 @@ contract UniBridgeVault is ReentrancyGuard, Ownable, Pausable {
 
     error UniBridgeVault__ValueMustGreaterThanZero();
     error UniBridgeVault__ZeroAddress();
+    error UniBridgeVault__InsufficientVaultLiquidity();
 
     constructor() Ownable(msg.sender) {}
 
@@ -53,10 +54,8 @@ contract UniBridgeVault is ReentrancyGuard, Ownable, Pausable {
         uint256 _amount
     ) external onlyOwner nonReentrant {
         if (_user == address(0)) revert UniBridgeVault__ZeroAddress();
-        require(
-            address(this).balance >= _amount,
-            "Insufficient vault liquidity"
-        );
+        if (address(this).balance <= _amount)
+            revert UniBridgeVault__InsufficientVaultLiquidity();
 
         // Interaction: Send the funds
         (bool success, ) = _user.call{value: _amount}("");
