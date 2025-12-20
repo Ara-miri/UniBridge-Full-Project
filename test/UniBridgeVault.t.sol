@@ -69,6 +69,34 @@ contract UniBridgeVaultTest is Test {
         vault.release(payable(user), 1 ether);
     }
 
+    function test_RevertIf_ZeroAddressPassedToRelease() public {
+        vm.deal(address(vault), 5 ether);
+
+        //only owner can call release function
+        vm.prank(owner);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                bytes4(keccak256("UniBridgeVault__ZeroAddress()"))
+            )
+        );
+        vault.release(payable(0), 1 ether);
+    }
+
+    function test_RevertIf_VaultBalanceIsLowerThanAmount() public {
+        vm.deal(address(vault), 5 ether);
+
+        //only owner can call release function
+        vm.prank(owner);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                bytes4(
+                    keccak256("UniBridgeVault__InsufficientVaultLiquidity()")
+                )
+            )
+        );
+        vault.release(payable(user), 10 ether);
+    }
+
     function test_RevertIf_Paused() public {
         vm.prank(owner);
         vault.pause();
