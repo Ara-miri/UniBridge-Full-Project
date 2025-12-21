@@ -135,7 +135,7 @@ contract UniBridgeVaultTest is Test {
     function test_ReleaseFunds() public {
         vm.deal(address(vault), 10 ether);
         uint256 initialBalance = recipient.balance;
-        console.log(initialBalance);
+
         vm.prank(owner);
         vault.release(payable(recipient), 2 ether);
 
