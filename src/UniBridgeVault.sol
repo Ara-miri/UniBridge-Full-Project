@@ -37,6 +37,11 @@ contract UniBridgeVault is AccessControlEnumerable, ReentrancyGuard, Pausable {
         bytes32 indexed transactionId
     );
 
+    error UniBridgeVault_AmountMustBeGreaterThanZero();
+    error UniBridgeVault_TransactionAlreadyProcessed();
+    error UniBridgeVault_InsufficientBridgeLiquidity();
+    error UniBridgeVault_InsufficientBridgeLiquidityForEmergencyWithdraw();
+
     /**
      * @dev Constructor grants the deployer both Admin and Relayer roles initially.
      * In production, the Admin should revoke their own Relayer role after setting up the backend nodes.
@@ -56,7 +61,7 @@ contract UniBridgeVault is AccessControlEnumerable, ReentrancyGuard, Pausable {
         uint256 _targetChainId,
         uint256 _nonce
     ) external payable nonReentrant whenNotPaused {
-        require(msg.value > 0, "Amount must be greater than 0");
+        if (msg.value <= 0) revert UniBridgeVault_AmountMustBeGreaterThanZero();
 
         // Generate a unique ID for this specific transaction
         // We include the block.chainid to ensure IDs are unique across different source networks
@@ -93,15 +98,13 @@ contract UniBridgeVault is AccessControlEnumerable, ReentrancyGuard, Pausable {
         bytes32 _transactionId
     ) external onlyRole(RELAYER_ROLE) nonReentrant whenNotPaused {
         // 1. Check for Replay Attack
-        require(
-            !processedNonces[_transactionId],
-            "Transaction already processed"
-        );
+        if (processedNonces[_transactionId])
+            revert UniBridgeVault_TransactionAlreadyProcessed();
+
         // 2. Check Liquidity
-        require(
-            address(this).balance >= _amount,
-            "Insufficient bridge liquidity"
-        );
+        if (address(this).balance < _amount)
+            revert UniBridgeVault_InsufficientBridgeLiquidity();
+
         // 3. Mark transaction as processed (State Change)
         processedNonces[_transactionId] = true;
         // 4. Transfer Funds (Interaction)
@@ -137,7 +140,8 @@ contract UniBridgeVault is AccessControlEnumerable, ReentrancyGuard, Pausable {
     function emergencyWithdraw(
         uint256 _amount
     ) external onlyRole(DEFAULT_ADMIN_ROLE) nonReentrant {
-        require(address(this).balance >= _amount, "Insufficient balance");
+        if (address(this).balance < _amount)
+            revert UniBridgeVault_InsufficientBridgeLiquidityForEmergencyWithdraw();
 
         (bool success, ) = payable(msg.sender).call{value: _amount}("");
         require(success, "Transfer failed");
