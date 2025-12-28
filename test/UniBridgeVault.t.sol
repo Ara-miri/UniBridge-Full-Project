@@ -54,7 +54,13 @@ contract UniBridgeVaultTest is Test {
 
         // Second release attempt with the SAME transactionId
         vm.prank(relayer);
-        vm.expectRevert("Transaction already processed");
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                UniBridgeVault
+                    .UniBridgeVault_TransactionAlreadyProcessed
+                    .selector
+            )
+        );
         bridge.release(payable(user), 1 ether, txId);
     }
 
@@ -86,9 +92,20 @@ contract UniBridgeVaultTest is Test {
 
         assertEq(admin.balance, initialAdminBalance + amount);
         assertEq(address(bridge).balance, 95 ether);
+
+        // ------ Testing insufficient bridge liquidity ------
+        vm.prank(admin);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                UniBridgeVault
+                    .UniBridgeVault_InsufficientBridgeLiquidityForEmergencyWithdraw
+                    .selector
+            )
+        );
+        bridge.emergencyWithdraw(100 ether);
     }
 
-    function test_PauseMechanism() public {
+    function test_PauseAndUnpauseMechanism() public {
         // Admin pauses the bridge
         vm.prank(admin);
         bridge.pause();
@@ -96,13 +113,28 @@ contract UniBridgeVaultTest is Test {
         // Users cannot lock while paused
         vm.deal(user, 1 ether);
         vm.prank(user);
-        vm.expectRevert(); // EnforcedPause()
+        vm.expectRevert(
+            abi.encodeWithSelector(Pausable.EnforcedPause.selector)
+        ); // EnforcedPause() error in Pausable contract
         bridge.lock{value: 1 ether}(56, 99);
 
         // Relayers cannot release while paused
         vm.prank(relayer);
-        vm.expectRevert();
+        vm.expectRevert(
+            abi.encodeWithSelector(Pausable.EnforcedPause.selector)
+        ); // EnforcedPause() error in Pausable contract
         bridge.release(payable(user), 1 ether, keccak256("something")); // dummy txId
+
+        // Admin unpauses the bridge
+        vm.prank(admin);
+        bridge.unpause();
+
+        vm.prank(user);
+        bridge.lock{value: 1 ether}(56, 99);
+
+        vm.prank(relayer);
+        bridge.release(payable(user), 1 ether, keccak256("something"));
+        assertEq(user.balance, 1 ether);
     }
 
     function test_RevertIf_NonRelayerAttemptsRelease() public {
@@ -120,6 +152,32 @@ contract UniBridgeVaultTest is Test {
         );
         // Should fail because attacker lacks RELAYER_ROLE
         bridge.release(payable(attacker), 1 ether, txId);
+    }
+
+    function test_RevertIf_AmountIsLessThanOrEqualToZero() public {
+        vm.prank(user);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                UniBridgeVault
+                    .UniBridgeVault_AmountMustBeGreaterThanZero
+                    .selector
+            )
+        );
+        bridge.lock{value: 0 ether}(56, 99);
+    }
+
+    function test_RevertIf_InsufficientBridgeLiquidityOnRelease() public {
+        vm.deal(address(bridge), 1 ether);
+        vm.prank(relayer);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                UniBridgeVault
+                    .UniBridgeVault_InsufficientBridgeLiquidity
+                    .selector
+            )
+        );
+        bytes32 txId = keccak256(abi.encode(user, 2 ether));
+        bridge.release(payable(user), 2 ether, txId);
     }
 
     // --- Fuzzing Test ---
