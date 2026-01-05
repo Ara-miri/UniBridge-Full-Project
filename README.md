@@ -67,7 +67,7 @@ A high-performance, professional-grade smart contract designed for **secure cros
 
 ```bash
 # Clone the repository
-git clone https://github.com/Ara-miri/unibridge-vault.git
+git clone https://github.com/Ara-miri/UniBridge-Full-Project.git
 cd unibridge-vault
 
 # Build the project
