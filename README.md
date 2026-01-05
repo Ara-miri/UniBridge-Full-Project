@@ -67,7 +67,7 @@ A high-performance, professional-grade smart contract designed for **secure cros
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-repo/unibridge-vault.git
+git clone https://github.com/Ara-miri/unibridge-vault.git
 cd unibridge-vault
 
 # Build the project
@@ -114,4 +114,4 @@ The contract defines specific errors for better debugging and gas efficiency:
 
 ## 📄 License
 
-This project is licensed under the **MIT License**.
+This project is licensed under the **MIT License** [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT).
