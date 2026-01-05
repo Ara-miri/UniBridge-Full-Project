@@ -9,7 +9,9 @@ A high-performance, professional-grade smart contract designed for **secure cros
 **UniBridge Vault** facilitates the transfer of native assets (ETH, BNB, TRX) between different blockchain networks. It uses a **Lock-and-Release** mechanism:
 
 :one: **Source Chain:** User calls `lock()`, depositing native currency into the vault.
+
 :two: **Off-Chain:** A relayer detects the `Locked` event.
+
 :three: **Target Chain:** The relayer calls `release()` to deliver the equivalent funds to the user.
 
 ---
