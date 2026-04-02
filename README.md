@@ -1,10 +1,10 @@
-# UniBridge Vault 🚀
+# UniBridge Vault
 
 A high-performance, professional-grade smart contract designed for **secure cross-chain native asset bridging**. Built with **Solidity 0.8.20** and strictly follows industry security standards, including Role-Based Access Control (RBAC) and Replay Protection.
 
 ---
 
-## 📌 Overview
+## Overview
 
 **UniBridge Vault** facilitates the transfer of native assets (ETH, BNB, TRX) between different blockchain networks. It uses a **Lock-and-Release** mechanism:
 
@@ -16,7 +16,7 @@ A high-performance, professional-grade smart contract designed for **secure cros
 
 ---
 
-## ✨ Key Features
+## Key Features
 
 - **Role-Based Access Control (RBAC):** Utilizes OpenZeppelin's `AccessControlEnumerable` to separate administrative duties from operational relayer tasks.
 - **Replay Protection:** Implements unique `transactionId` hashing (incorporating `chainid`, `nonce`, and `sender`) to prevent double-spending and cross-network replay attacks.
@@ -26,7 +26,7 @@ A high-performance, professional-grade smart contract designed for **secure cros
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 - **Language:** Solidity 0.8.20
 - **Framework:** [Foundry](https://book.getfoundry.sh/)
@@ -37,7 +37,7 @@ A high-performance, professional-grade smart contract designed for **secure cros
 
 ---
 
-## 📖 Smart Contract API
+## Smart Contract API
 
 ### Core Functions
 
@@ -56,7 +56,7 @@ A high-performance, professional-grade smart contract designed for **secure cros
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
